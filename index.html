@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lashista - Catálogo de Servicios</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1em;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-add {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 18px;
+            background: #f3f3f3;
+        }
+
+        .image-preview {
+            width: 100%;
+            max-height: 180px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+            padding-right: 30px;
+        }
+
+        .card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+
+        .card .tag {
+            display: inline-block;
+            margin-bottom: 15px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #5b45c8;
+            font-size: 0.85em;
+            font-weight: 700;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .btn-small.btn-secondary {
+            background: #f3f4ff;
+            color: #333;
+        }
+
+        .btn-small.btn-secondary:hover {
+            background: #e2e6ff;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+        }
+
+        .btn-edit {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #5568d3;
+        }
+
+        .btn-delete {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #ee5a52;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .modal-content h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .btn-save {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .btn-save:hover {
+            background: #5568d3;
+        }
+
+        .btn-cancel {
+            background: #ddd;
+            color: #333;
+            padding: 10px 20px;
+        }
+
+        .btn-cancel:hover {
+            background: #ccc;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        .empty-state h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        /* Animaciones */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 5px;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .detail-image {
+            width: 100%;
+            max-height: 360px;
+            object-fit: cover;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            background: #f3f3f3;
+        }
+
+        .detail-content p {
+            margin-bottom: 12px;
+            color: #555;
+            line-height: 1.7;
+        }
+
+        .detail-content .detail-label {
+            font-weight: 700;
+            color: #333;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✨ Lashista</h1>
+            <p class="subtitle">Catálogo de Servicios y Productos</p>
+        </header>
+
+        <div class="controls">
+            <button class="btn-add" onclick="openModal()">+ Agregar Nuevo Servicio</button>
+            <button class="btn-secondary" onclick="exportData()">📥 Descargar JSON</button>
+            <button class="btn-secondary" onclick="clearAllData()">🗑️ Limpiar Todo</button>
+        </div>
+
+        <div class="grid" id="grid">
+            <!-- Los cards se generan aquí -->
+        </div>
+
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <h2>Sin servicios aún</h2>
+            <p>Comienza agregando tu primer servicio haciendo clic en el botón arriba</p>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <h2 id="modalTitle">Agregar Nuevo Servicio</h2>
+            <form id="form" onsubmit="saveItem(event)">
+                <div class="form-group">
+                    <label for="title">Nombre del Servicio *</label>
+                    <input type="text" id="title" required placeholder="Ej: Volumen 5D">
+                </div>
+                <div class="form-group">
+                    <label for="description">Descripción</label>
+                    <textarea id="description" placeholder="Ej: Extensiones con 0.05D curl..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="image">Imagen</label>
+                    <input type="file" id="image" accept="image/*">
+                    <img id="imagePreview" class="image-preview" alt="Vista previa de imagen">
+                </div>
+                <div class="form-group">
+                    <label for="type">Tipo de pestañas</label>
+                    <select id="type">
+                        <option value="">Selecciona un tipo</option>
+                        <option value="Clásicas">Clásicas</option>
+                        <option value="Volumen">Volumen</option>
+                        <option value="Híbridas">Híbridas</option>
+                        <option value="Mega volumen">Mega volumen</option>
+                        <option value="Técnica especial">Técnica especial</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-save">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeDetailModal()">&times;</button>
+            <img id="detailImage" class="detail-image" alt="Imagen del servicio">
+            <div class="detail-content">
+                <h2 id="detailTitle"></h2>
+                <p><span class="detail-label">Tipo:</span> <span id="detailType"></span></p>
+                <p id="detailDescription"></p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeDetailModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let items = [];
+        let editingId = null;
+
+        // Cargar datos del localStorage
+        function loadData() {
+            const saved = localStorage.getItem('lashistaItems');
+            if (saved) {
+                items = JSON.parse(saved);
+            } else {
+                // Datos iniciales del documento
+                items = [
+                    {
+                        id: 1,
+                        title: "Volumen griego (5D)",
+                        description: "Técnica avanzada de volumen griego",
+                        image: "",
+                        type: "Volumen"
+                    },
+                    {
+                        id: 2,
+                        title: "Efecto mojado",
+                        description: "Efecto mojado con especificaciones técnicas",
+                        image: "",
+                        type: "Técnica especial"
+                    },
+                    {
+                        id: 3,
+                        title: "Rimel wet set",
+                        description: "Aplicación de rimel con efecto mojado",
+                        image: "",
+                        type: "Clásicas"
+                    },
+                    {
+                        id: 4,
+                        title: "Efecta muñeca",
+                        description: "Extensiones tecnológicas para la parte inferior\nExtensiones clásicas para la parte superior",
+                        image: "",
+                        type: "Híbridas"
+                    },
+                    {
+                        id: 5,
+                        title: "Volumen tecnológico 3D",
+                        description: "Volumen tecnológico 3D (0.07D – 13mm)",
+                        image: "",
+                        type: "Volumen"
+                    },
+                    {
+                        id: 6,
+                        title: "Volumen tecnológico 5D Y 7D",
+                        description: "Volumen avanzado con 0.05D curl",
+                        image: "",
+                        type: "Volumen"
+                    }
+                ];
+                saveData();
+            }
+            renderCards();
+        }
+
+        // Guardar datos en localStorage
+        function saveData() {
+            localStorage.setItem('lashistaItems', JSON.stringify(items));
+        }
+
+        // Renderizar tarjetas
+        function renderCards() {
+            const grid = document.getElementById('grid');
+            const emptyState = document.getElementById('emptyState');
+
+            if (items.length === 0) {
+                grid.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            grid.innerHTML = items.map(item => `
+                <div class="card">
+                    ${item.image ? `<img class="card-image" src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}">` : ''}
+                    <h3>${escapeHtml(item.title)}</h3>
+                    ${item.type ? `<span class="tag">${escapeHtml(item.type)}</span>` : ''}
+                    ${item.description ? `<p>${escapeHtml(item.description).replace(/\n/g, '<br>')}</p>` : ''}
+                    <div class="card-actions">
+                        <button class="btn-small btn-secondary" onclick="viewDetails(${item.id})">Ver detalles</button>
+                        <button class="btn-small btn-edit" onclick="editItem(${item.id})">Editar</button>
+                        <button class="btn-small btn-delete" onclick="deleteItem(${item.id})">Eliminar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Abrir modal
+        function openModal(id = null) {
+            const modal = document.getElementById('modal');
+            const form = document.getElementById('form');
+            const modalTitle = document.getElementById('modalTitle');
+
+            form.reset();
+            editingId = null;
+
+            if (id) {
+                const item = items.find(i => i.id === id);
+                if (item) {
+                    editingId = id;
+                    document.getElementById('title').value = item.title;
+                    document.getElementById('description').value = item.description || '';
+                    document.getElementById('type').value = item.type || '';
+                    const preview = document.getElementById('imagePreview');
+                    if (item.image) {
+                        preview.src = item.image;
+                        preview.style.display = 'block';
+                    } else {
+                        preview.style.display = 'none';
+                        preview.src = '';
+                    }
+                    modalTitle.textContent = 'Editar Servicio';
+                }
+            } else {
+                modalTitle.textContent = 'Agregar Nuevo Servicio';
+                const preview = document.getElementById('imagePreview');
+                preview.style.display = 'none';
+                preview.src = '';
+            }
+
+            modal.classList.add('show');
+        }
+
+        // Cerrar modal
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+            editingId = null;
+        }
+
+        // Guardar item
+        function saveItem(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('title').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const imageInput = document.getElementById('image');
+            const type = document.getElementById('type').value;
+            const file = imageInput.files[0];
+
+            if (!title) {
+                alert('El nombre del servicio es obligatorio');
+                return;
+            }
+
+            const saveDataWithImage = (imageData) => {
+                if (editingId) {
+                    const item = items.find(i => i.id === editingId);
+                    if (item) {
+                        item.title = title;
+                        item.description = description;
+                        item.image = imageData;
+                        item.type = type;
+                    }
+                } else {
+                    const newId = items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1;
+                    items.push({
+                        id: newId,
+                        title,
+                        description,
+                        image: imageData,
+                        type
+                    });
+                }
+
+                saveData();
+                renderCards();
+                closeModal();
+            };
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function() {
+                    saveDataWithImage(reader.result);
+                };
+                reader.readAsDataURL(file);
+            } else {
+                const existingImage = editingId ? (items.find(i => i.id === editingId)?.image || '') : '';
+                saveDataWithImage(existingImage);
+            }
+        }
+
+        // Editar item
+        function editItem(id) {
+            openModal(id);
+        }
+
+        // Eliminar item
+        function deleteItem(id) {
+            if (confirm('¿Estás seguro de que quieres eliminar este servicio?')) {
+                items = items.filter(item => item.id !== id);
+                saveData();
+                renderCards();
+            }
+        }
+
+        function viewDetails(id) {
+            const item = items.find(i => i.id === id);
+            if (!item) return;
+            const detailModal = document.getElementById('detailModal');
+            const detailImage = document.getElementById('detailImage');
+            const detailTitle = document.getElementById('detailTitle');
+            const detailType = document.getElementById('detailType');
+            const detailDescription = document.getElementById('detailDescription');
+
+            detailTitle.textContent = item.title;
+            detailType.textContent = item.type || 'No definido';
+            detailDescription.innerHTML = item.description ? escapeHtml(item.description).replace(/\n/g, '<br>') : 'Sin descripción.';
+
+            if (item.image) {
+                detailImage.src = item.image;
+                detailImage.style.display = 'block';
+            } else {
+                detailImage.style.display = 'none';
+                detailImage.src = '';
+            }
+
+            detailModal.classList.add('show');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('show');
+        }
+
+        // Exportar datos
+        function exportData() {
+            const dataStr = JSON.stringify(items, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'lashista-servicios.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Limpiar todo
+        function clearAllData() {
+            if (confirm('¿Estás seguro? Esto eliminará TODOS los servicios. Esta acción no se puede deshacer.')) {
+                if (confirm('¿Verdaderamente quieres continuar? Esto es irreversible.')) {
+                    items = [];
+                    saveData();
+                    renderCards();
+                }
+            }
+        }
+
+        // Escapar HTML
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        document.getElementById('image').addEventListener('change', function() {
+            const preview = document.getElementById('imagePreview');
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function() {
+                    preview.src = reader.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+                preview.src = '';
+            }
+        });
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            const detailModal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+            if (event.target === detailModal) {
+                closeDetailModal();
+            }
+        }
+
+        // Inicializar
+        loadData();
+    </script>
+</body>
+</html>
